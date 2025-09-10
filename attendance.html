@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>QR Attendance System</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      background: #1e1e1e;
+      color: #f5f5f5;
+      margin: 0;
+      padding: 20px;
+    }
+    h2 {
+      color: #00e676;
+    }
+    #reader {
+      width: 300px;
+      margin: auto;
+    }
+    #message {
+      margin-top: 15px;
+      font-weight: bold;
+    }
+    button {
+      margin-top: 15px;
+      padding: 10px 20px;
+      font-size: 16px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      background: #00e676;
+      color: #000;
+      transition: 0.3s;
+    }
+    button:hover {
+      background: #00c853;
+    }
+  </style>
+  <!-- QR Code Scanner Library -->
+  <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+</head>
+<body>
+  <h2>QR Code Attendance System</h2>
+  <div id="reader"></div>
+  <p id="message">Scan your QR code...</p>
+  <button onclick="downloadCSV()">Download Attendance CSV</button>
+
+  <script>
+    let attendance = [["Name/Code", "Timestamp"]];
+
+    function onScanSuccess(decodedText) {
+      let timestamp = new Date().toLocaleString();
+      attendance.push([decodedText, timestamp]);
+      document.getElementById("message").innerText =
+        `✅ Marked present: ${decodedText} at ${timestamp}`;
+    }
+
+    function onScanError(errorMessage) {
+      // Ignore errors to keep scanning
+    }
+
+    // Start camera QR scanner
+    let html5QrcodeScanner = new Html5QrcodeScanner(
+      "reader",
+      { fps: 10, qrbox: 250 }
+    );
+    html5QrcodeScanner.render(onScanSuccess, onScanError);
+
+    function downloadCSV() {
+      let csvContent = attendance.map(e => e.join(",")).join("\n");
+      let blob = new Blob([csvContent], { type: 'text/csv' });
+      let url = URL.createObjectURL(blob);
+      let a = document.createElement("a");
+      a.href = url;
+      a.download = "attendance.csv";
+      a.click();
+    }
+  </script>
+</body>
+</html>
